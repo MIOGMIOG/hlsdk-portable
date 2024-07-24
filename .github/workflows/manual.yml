@@ -20,6 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        arch: ['x86','x86_64','ARM64']
         include:
 #          - os: ubuntu-latest
 #            cc: gcc
@@ -74,12 +75,21 @@ jobs:
     - name: Add msbuild to PATH
       if: startsWith(matrix.os, 'windows')
       uses: microsoft/setup-msbuild@v1.1
-    - name: Build on Windows
-      if: startsWith(matrix.os, 'windows')
+    - name: Build on Windows x86
+      if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'x86' }}
+      run: |
+        cmake -G "Visual Studio 17 2022" -A Win32 -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=0 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
+        msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} build/INSTALL.vcxproj
+    - name: Build on Windows x86_64
+      if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'x86_64' }}
       run: |
         cmake -G "Visual Studio 17 2022" -A x64 -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=1 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
         msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=x64 build/INSTALL.vcxproj
-
+    - name: Build on Windows ARM64
+      if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'ARM64' }}
+      run: |
+        cmake -G "Visual Studio 17 2022" -A ARM64 -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=1 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
+        msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=ARM64 build/INSTALL.vcxproj
     - name: Extract branch name
       shell: bash
       run: echo "branch=$(echo ${GITHUB_REF#refs/heads/} | tr '/' '_')" >> $GITHUB_OUTPUT
@@ -108,6 +118,5 @@ jobs:
       if: startsWith(matrix.os, 'windows')
       uses: actions/upload-artifact@v3
       with:
-        name: hlsdk-${{ steps.extract_branch.outputs.branch }}-windows
+        name: hlsdk-${{ steps.extract_branch.outputs.branch }}-windows-${{ matrix.arch }}
         path: dist/${{ steps.extract_gamedir.outputs.gamedir }}
-
