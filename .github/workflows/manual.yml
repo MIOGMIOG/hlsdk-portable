@@ -100,7 +100,7 @@ jobs:
     - name: Build on Windows ARM
       if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'ARM' }}
       run: |
-        cmake -G "Visual Studio 15 2017 ARM" -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=0 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
+        cmake -G "Visual Studio 16 2019" -A ARM -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=0 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
         msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=ARM build/INSTALL.vcxproj
     - name: Build on Windows ARM64
       if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'ARM64' }}
