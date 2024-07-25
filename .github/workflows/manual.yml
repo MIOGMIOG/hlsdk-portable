@@ -20,7 +20,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        arch: ['x86','x86_64','ARM64']
         include:
 #          - os: ubuntu-latest
 #            cc: gcc
@@ -28,6 +27,19 @@ jobs:
           - os: windows-2022
             cc: cl
             cxx: cl
+            arch: x86
+          - os: windows-2022
+            cc: cl
+            cxx: cl
+            arch: x86_64
+          - os: windows-2019
+            cc: cl
+            cxx: cl
+            arch: ARM
+          - os: windows-2022
+            cc: cl
+            cxx: cl
+            arch: ARM64
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
@@ -85,6 +97,11 @@ jobs:
       run: |
         cmake -G "Visual Studio 17 2022" -A x64 -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=1 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
         msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=x64 build/INSTALL.vcxproj
+    - name: Build on Windows ARM
+      if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'ARM' }}
+      run: |
+        cmake -G "Visual Studio 16 2019" -A ARM -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=0 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
+        msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=ARM build/INSTALL.vcxproj
     - name: Build on Windows ARM64
       if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'ARM64' }}
       run: |
