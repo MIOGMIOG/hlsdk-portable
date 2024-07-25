@@ -114,7 +114,7 @@ jobs:
     - name: Build on Windows IA64
       if: ${{ startsWith(matrix.os, 'windows') && matrix.arch == 'IA64' }}
       run: |
-        cmake -G "Visual Studio 10 2010 IA64" -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=1 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
+        cmake -G "Visual Studio 16 2019" -A IA64 -B build -DCMAKE_INSTALL_PREFIX="dist" -D64BIT=1 -DUSE_VGUI=${{ github.event.inputs.usevgui }}
         msbuild -verbosity:normal /property:Configuration=${{ github.event.inputs.buildtype }} /p:Platform=IA64 build/INSTALL.vcxproj
     - name: Extract branch name
       shell: bash
